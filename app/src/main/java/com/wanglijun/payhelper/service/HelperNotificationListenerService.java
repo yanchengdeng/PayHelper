@@ -75,12 +75,44 @@ public class HelperNotificationListenerService extends NotificationListenerServi
             return;
 
         Log.d(TAG, "********************************************");
+        Log.d(TAG, "********dyc包名：************************************： "+pkg);
         final String title = getNotificationTitle(extras);
         final String content = getNotificationContent(extras);
         final String date = getNotificationTime(notification);
+
+        /**
+         * app 通知
+         * Bundle[{android.title=招商银行,
+         * android.reduced.images=true, android.icon=2130837940, android.text=您账户6083于07月07日15:50在【支付宝-华安基金管理有限公司】发生快捷支付扣款，人民币5.00,
+         * android.appInfo=ApplicationInfo{546345d cmb.pb},
+         * android.showWhen=true}]
+         */
+
+
+        /**
+         * Bundle[{android.title=动账通知,
+         * android.reduced.images=true,
+         * android.icon=2130837941,
+         * android.text=您账户6083于07月07日16:02在【财付通-微信转账】发生快捷支付扣款，人民币10.00, android.appInfo=ApplicationInfo{e435382 cmb.pb}, android.showWhen=true}]
+         */
+
+        /**
+         * 短信
+         * Bundle[{android.title=⁨老婆⁩, android.reduced.images=true, android.car.EXTENSIONS=Bundle[mParcelledData.dataSize=936],
+         * android.template=android.app.Notification$MessagingStyle, android.icon=2131232566,
+         * android.people.list=[android.app.Person@c753a91],
+         * android.text=【福建农信】尊敬的客户，您的高速通行记录：车辆(****D21)2020年07月05日在福建祥谦站驶入至福建平潭站驶出，共计消费51.94元（ETC扣款卡尾号7559）。
+         * 如有疑问，可咨询福建高速0591-12122或“福建高速公路”公众号。,
+         * android.selfDisplayName=⁨老婆⁩, android.appInfo=ApplicationInfo{2e84df6 com.samsung.android.messaging},
+         * android.messages=[Landroid.os.phics.Bitmap@5b60c64, android.messagingUser=android.app.Person@fa1eecd,
+         * android.wearable.EXTENSIONS=Bundle[mParcellParcelable;@6ee55f7,
+         *          * android.showWhen=true, android.largeIcon=android.graedData.dataSize=360], android.isGroupConversation=false}]
+         */
         printNotify(date, title, content);
 
         if (LISTENING_TARGET_PKG.equals(pkg)) {
+            Log.d(TAG, "********dyc词语title：************************************： "+title);
+            Log.d(TAG, "********dyc词语content：************************************： "+content);
             if (getNotificationTitle(extras).contains("交易成功")) {
                 final String money = findMoney(content);
                 postMoney((int) uid, notification.when, date, title, content, money);
@@ -93,8 +125,10 @@ public class HelperNotificationListenerService extends NotificationListenerServi
     private void postMoney(final int uid, long when, final String date, final String title, final String content, final String money) {
         try {
             String signSrc = "q_id=" + uid + "&pay_money=" + money + "&time=" + when;
-            String signEnc = AesUtil.encrypt(signSrc);
-            RetrofitUtil.getInstance().userService().callback(signEnc)
+
+            Log.d(TAG, "********dyc词语上传数据：************************************： "+content);
+//            String signEnc = AesUtil.encrypt(signSrc);
+            RetrofitUtil.getInstance().userService().callback(signSrc)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(new Observer<Result>() {

@@ -58,6 +58,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 return;
             }
 
+            PreferenceUtil.getInstance().userId(100);
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+
             RetrofitUtil.getInstance().userService()
                     .login(user_name, user_pass)
                     .observeOn(AndroidSchedulers.mainThread())

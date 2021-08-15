@@ -7,11 +7,11 @@ public class Constants {
 
 
     //这里的被监听的报名被我和谐了
-    public static final String LISTENING_TARGET_PKG = "com.xxx.xpay";
+    public static final String LISTENING_TARGET_PKG = "com.eg.android.AlipayGphone";
     //这里post的地址被我和谐了
-    public static final String BASE_URL = "http://xxx.xxx.xxx.xxx/wap/";
+    public static final String BASE_URL = "http://www.taida2021.com/testapi/index.php";
     public static final int DEFAULT_TIMEOUT = 30;
-    public static final String SP_NAME = "com.wanglijun.payhelper.SP_NAME";
+    public static final String SP_NAME = "com.xk.payhelper.SP_NAME";
     public static final String SP_USER_ID = "SP_USER_ID";
 
 

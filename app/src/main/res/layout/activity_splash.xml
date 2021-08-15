@@ -12,7 +12,7 @@
 
 
     <ImageView
-        android:src="@mipmap/helper_logo_round"
+        android:src="@mipmap/ic_launcher_round"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <TextView
