@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import com.blankj.utilcode.util.Utils;
 import com.xq.payhelper.common.PreferenceUtil;
 import com.xq.payhelper.db.BillDao;
 
@@ -32,5 +33,6 @@ public class HelperApplication extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
+        Utils.init(this);
     }
 }

@@ -9,11 +9,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.scwang.smart.refresh.layout.SmartRefreshLayout;
-import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 import com.xq.payhelper.R;
 import com.xq.payhelper.HelperApplication;
 import com.xq.payhelper.HistoryAdapter;

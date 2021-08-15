@@ -5,7 +5,7 @@ public class Constants {
     public static final boolean IS_DEBUG = true;
     public static final String LISTENING_TARGET_PKG_ALi = "com.eg.android.AlipayGphone";//支付宝
     public static final String LISTENING_TARGET_PKG_TENCENT = "com.tencent.mm";//微信
-    public static final String BASE_URL = "http://www.taida2021.com/";
+    public static  String BASE_URL_KEY = "base_url";
     public static final int DEFAULT_TIMEOUT = 30;
     public static final String SP_NAME = "com.xk.payhelper.SP_NAME";
     public static final String SP_USER_ID = "SP_USER_ID";

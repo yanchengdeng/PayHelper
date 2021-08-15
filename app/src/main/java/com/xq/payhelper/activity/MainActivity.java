@@ -28,6 +28,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.SPUtils;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.king.zxing.CameraScan;
@@ -133,6 +134,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     String result = CameraScan.parseScanResult(data);
                     if (!TextUtils.isEmpty(result)) {
                         etInput.setText(result);
+                        SPUtils.getInstance().put(Constants.BASE_URL_KEY,result);
+                        RetrofitUtil.getInstance().resetUrl(result);
                     } else {
                         Toast.makeText(this, "未识别出信息", Toast.LENGTH_LONG).show();
                     }
@@ -192,7 +195,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         //推送服务状态监听
         VariableData.serviceMsg.observe(this, serviceMsgObserver);
 
-
+        if (TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))){
+            etInput.setText(SPUtils.getInstance().getString(Constants.BASE_URL_KEY));
+        }
     }
 
 
