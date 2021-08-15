@@ -1,97 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f0f0f0"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
 
     <TextView
-        android:id="@+id/tv_tip"
+        android:id="@+id/tvServiceTip"
         android:background="#FF4040"
         android:textColor="#fff"
         android:textSize="16sp"
         android:padding="5dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         android:lines="1"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <TextView
+
+    <EditText
+        android:id="@+id/etInput"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:hint="@string/input_url"
+        android:layout_margin="20dp"
+        android:inputType="text"
+        android:textColor="#ff0000"
+        android:textColorHint="#cccccc"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/ivScan"
+        app:layout_constraintTop_toBottomOf="@+id/tvServiceTip" />
+
+    <ImageView
+        android:id="@+id/ivScan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="最新订单"
-        android:textColor="#333"
-        android:textSize="16sp" />
+        android:src="@mipmap/icon_scan"
+        android:layout_marginRight = "20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/etInput"
+        app:layout_constraintHorizontal_bias="0.933"
+        app:layout_constraintLeft_toRightOf="@+id/etInput"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/etInput"
+        app:layout_constraintVertical_bias="0.517"/>
 
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
+
+
+
+    <TextView
+        android:id="@+id/tvListenerMsg"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf = "parent"
+        app:layout_constraintTop_toBottomOf = "@+id/etInput"
+        app:layout_constraintBottom_toTopOf = "@+id/btnAction"
+        android:layout_width="0dp"
+        android:textColor="@color/c_222222"
+        android:textSize="16sp"
+        android:layout_margin = "20dp"
+        android:layout_height="0dp" />
+
+
+    <Button
+        android:id="@+id/btnAction"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp">
-
-            <TextView
-                android:id="@+id/tv_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#666"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_money"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tv_date"
-                android:textColor="#f11"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/tv_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tv_money"
-                android:textColor="#333"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_sync"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:id="@+id/ll_empty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/not_message" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="暂无订单"
-                    android:textColor="#333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-        </RelativeLayout>
-
-    </android.support.v7.widget.CardView>
+        android:layout_width="0dp"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:layout_margin = "20dp"
+        android:background="@color/colorPrimary"
+        android:text="@string/start_listener"
+        />
 
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

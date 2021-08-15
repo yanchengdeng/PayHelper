@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">收款助手</string>
+    <string name="app_name">支付助手</string>
+    <string name="input_url">请输入监听地址</string>
+    <string name="start_listener">开始监听</string>
+    <string name="permission_camera">App扫码需要用到拍摄权限</string>
+    <string name="loading">加载中...</string>
 </resources>
