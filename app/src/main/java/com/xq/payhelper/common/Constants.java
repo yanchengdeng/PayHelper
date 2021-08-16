@@ -2,7 +2,7 @@ package com.xq.payhelper.common;
 
 public class Constants {
 
-    public static final boolean IS_DEBUG = true;
+    public static final boolean IS_DEBUG = false;
     public static final String LISTENING_TARGET_PKG_ALi = "com.eg.android.AlipayGphone";//支付宝
     public static final String LISTENING_TARGET_PKG_TENCENT = "com.tencent.mm";//微信
     public static  String BASE_URL_KEY = "base_url";

@@ -73,7 +73,6 @@ public class HelperNotificationListenerService extends NotificationListenerServi
         if (extras == null)
             return;
 
-        LogUtils.d(TAG, "********************************************");
         LogUtils.d(TAG, "*******************************************： " + pkg);
         final String title = getNotificationTitle(extras);
         final String content = getNotificationContent(extras);
@@ -117,7 +116,7 @@ public class HelperNotificationListenerService extends NotificationListenerServi
         if (Constants.LISTENING_TARGET_PKG_ALi.equals(pkg) || Constants.LISTENING_TARGET_PKG_TENCENT.equals(pkg)) {
             LogUtils.d(TAG, "********dyc词语title：************************************： " + title);
             LogUtils.d(TAG, "********dyc词语content：************************************： " + content);
-            if (content.contains("支付") || content.contains("额") || content.contains("收款")) {
+            if (content.contains("支付") || content.contains("额") || content.contains("款")) {
                 final String money = findMoney(content);
                 postMoney(1, notification.when, date, title, content, money);
             }
@@ -127,19 +126,12 @@ public class HelperNotificationListenerService extends NotificationListenerServi
 
     private void postMoney(final int uid, long when, final String date, final String title, final String content, final String money) {
         try {
-            String signSrc = "q_id=" + uid + "&pay_money=" + money + "&time=" + when;
-
-            LogUtils.d(TAG, "********dyc词语上传数据：************************************： " + content);
-            LogUtils.d(TAG, "********dyc词语上传数据：***signSrc*********************************： " + signSrc);
-//String date, String title, String content, String money
 
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("a", "submit");
             params.put("content", new Gson().toJson(new Bill(date, title, content, money)));
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(JSON, new Gson().toJson(params));
-
-
             RxHttp.postBody(SPUtils.getInstance().getString(Constants.BASE_URL_KEY)).setBody(body).asString().subscribe(data -> {
                 postCallback(date, title, content, money, 1);
             }, throwable -> {

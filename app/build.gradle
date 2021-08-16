@@ -5,6 +5,14 @@ apply plugin: 'kotlin-kapt'
 
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('D:\\projects\\PayHelper\\app\\miaopai.jks')
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias 'miaopai'
+        }
+    }
     compileSdkVersion 30
     defaultConfig {
         applicationId "com.xq.payhelper"
