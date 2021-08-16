@@ -1,12 +1,16 @@
 package com.xq.payhelper.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Process;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -25,16 +29,18 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.king.zxing.CameraScan;
 import com.king.zxing.CaptureActivity;
-import com.xq.payhelper.HelperApplication;
 import com.xq.payhelper.R;
 import com.xq.payhelper.common.Constants;
 import com.xq.payhelper.common.VariableData;
+import com.xq.payhelper.entity.Result;
 import com.xq.payhelper.entity.ServiceNoticeInfo;
 import com.xq.payhelper.service.HelperNotificationListenerService;
 import com.xq.payhelper.utils.AppUtil;
@@ -54,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private EditText etInput;
     private Button btnActionListener;
     private TextView tvActionApiResult;
+    private TextView tvVersion;
 
 
     public static final int RC_CAMERA = 0X01;
@@ -69,6 +76,110 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             tvServiceTips.setText(o.getMsg());
         }
     };
+
+
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler(){
+        @SuppressLint("HandlerLeak")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1){
+                    btnActionListener.setText("正在监听");
+                    btnActionListener.setEnabled(false);
+                    btnActionListener.setClickable(false);
+                    btnActionListener.setBackground(getDrawable(R.color.c_cccccc));
+                    ivScan.setVisibility(View.GONE);
+            }
+        }
+    };
+
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        tvServiceTips = findViewById(R.id.tvServiceTip);
+        ivScan = findViewById(R.id.ivScan);
+        etInput = findViewById(R.id.etInput);
+        btnActionListener = findViewById(R.id.btnAction);
+        tvActionApiResult = findViewById(R.id.tvListenerMsg);
+        tvVersion = findViewById(R.id.tvVersion);
+
+        tvVersion.setText(AppUtils.getAppVersionName());
+
+        //扫描
+        ivScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkCameraPermissions();
+            }
+        });
+
+        //开启监听
+
+        btnActionListener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startAction();
+            }
+        });
+
+
+        //推送服务状态监听
+        VariableData.serviceMsg.observe(this, serviceMsgObserver);
+
+        if (!TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))) {
+            etInput.setText(SPUtils.getInstance().getString(Constants.BASE_URL_KEY));
+        }
+    }
+
+
+    private void startAction() {
+        if (TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))) {
+            ToastUtils.showLong(R.string.input_url);
+            return;
+        }
+
+        KProgressHUD progressHUD = KProgressHUD.create(MainActivity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel(getString(R.string.loading))
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f)
+                .show();
+        try {
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            RequestBody body = RequestBody.create(JSON, "{\"a\":\"open\"}");
+
+            RxHttp.postBody(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))
+                    .setBody(body)
+                    .asClass(Result.class)
+                    .subscribe(data -> {
+                        progressHUD.dismiss();
+                        setListenerUI(data);
+                    }, throwable -> {
+                        progressHUD.dismiss();
+                        tvActionApiResult.setText(throwable.getLocalizedMessage());
+                        ToastUtils.showShort("监听失败");
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+            tvActionApiResult.setText(e.getLocalizedMessage());
+            progressHUD.dismiss();
+        }
+    }
+
+    private void setListenerUI(Result data) {
+        tvActionApiResult.setText(new Gson().toJson(data));
+        if (data.getStatus() == 0) {
+            Message msg = handler.obtainMessage();
+            msg.what = 1;
+            handler.sendMessage(msg);
+        }
+    }
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
@@ -141,78 +252,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         super.onNewIntent(intent);
         String url = SPUtils.getInstance().getString(Constants.BASE_URL_KEY);
         LogUtils.d("onNewIntent---" + url);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        tvServiceTips = findViewById(R.id.tvServiceTip);
-        ivScan = findViewById(R.id.ivScan);
-        etInput = findViewById(R.id.etInput);
-        btnActionListener = findViewById(R.id.btnAction);
-        tvActionApiResult = findViewById(R.id.tvListenerMsg);
-
-        //扫描
-        ivScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkCameraPermissions();
-            }
-        });
-
-        //开启监听
-
-        btnActionListener.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startAction();
-            }
-        });
-
-
-        //推送服务状态监听
-        VariableData.serviceMsg.observe(this, serviceMsgObserver);
-
-        if (!TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))) {
-            etInput.setText(SPUtils.getInstance().getString(Constants.BASE_URL_KEY));
-        }
-    }
-
-
-    private void startAction() {
-        if (TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))) {
-            ToastUtils.showLong(R.string.input_url);
-            return;
-        }
-
-        KProgressHUD progressHUD = KProgressHUD.create(MainActivity.this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(getString(R.string.loading))
-                .setCancellable(true)
-                .setAnimationSpeed(2)
-                .setDimAmount(0.5f)
-                .show();
-        try {
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            RequestBody body = RequestBody.create(JSON, "{\"a\":\"open\"}");
-
-            RxHttp.postBody(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))
-                    .setBody(body)
-                    .asString()
-                    .subscribe(data -> {
-                        tvActionApiResult.setText(data);
-                        progressHUD.dismiss();
-                    }, throwable -> {
-                        progressHUD.dismiss();
-                        tvActionApiResult.setText(throwable.getLocalizedMessage());
-                        Toast.makeText(HelperApplication.getContext(), "出错了", Toast.LENGTH_SHORT).show();
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-            tvActionApiResult.setText(e.getLocalizedMessage());
-            progressHUD.dismiss();
-        }
     }
 
     @Override

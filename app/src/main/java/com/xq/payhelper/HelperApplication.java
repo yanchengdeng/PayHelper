@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.Utils;
 import com.xq.payhelper.common.Constants;
 import com.xq.payhelper.common.PreferenceUtil;
@@ -37,6 +38,7 @@ public class HelperApplication extends Application {
         super.attachBaseContext(base);
         MultiDex.install(this);
         Utils.init(this);
+        LogUtils.getConfig().setLogSwitch(Constants.IS_DEBUG);
         RxHttpPlugins.init(RxHttpPlugins.getOkHttpClient()).setDebug(Constants.IS_DEBUG);
     }
 }
