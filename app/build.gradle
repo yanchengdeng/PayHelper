@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.xq.payhelper"
         minSdkVersion 21
@@ -10,6 +15,14 @@ android {
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    kapt {
+        arguments {
+            arg("rxhttp_rxjava", "rxjava3") //可传入rxjava2、rxjava3
+//            arg("rxhttp_package", "rxhttp") //设置RxHttp相关类的包名，多module依赖时，需要配置不同的包名
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -31,20 +44,20 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.core:core:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+//    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     //导入retrofit
-    implementation 'com.google.code.gson:gson:2.8.5'
+//    implementation 'com.google.code.gson:gson:2.8.5'
     //Gson 库
     //下面两个是RxJava 和 RxAndroid
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.5'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
-    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+//    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+//    implementation 'io.reactivex.rxjava2:rxjava:2.2.5'
+//    implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+//    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     //转换器，请求结果转换成Model
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+//    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
     //配合Rxjava 使用
     implementation 'com.android.support:multidex:1.0.3'
     implementation  'com.scwang.smart:refresh-layout-kernel:2.0.3'
@@ -59,4 +72,25 @@ dependencies {
     implementation 'com.kaopiz:kprogresshud:1.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.blankj:utilcodex:1.30.6'
+
+    implementation "androidx.fragment:fragment-ktx:1.2.5"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+    implementation 'androidx.lifecycle:lifecycle-service:2.3.0-beta01'
+
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.5'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1' //rxhttp v2.2.2版本起，需要手动依赖okhttp
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.5' //Use the annotationProcessor instead of kapt, if you use Java
+    implementation 'com.github.liujingxing.rxlife:rxlife-coroutine:2.1.0' //Coroutine, Automatic close request
+
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.1.0' //RxJava3, Automatic close request
+
+    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.5'
+    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.5'
+//    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.5'
+//    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.5'
+//    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.5'
 }

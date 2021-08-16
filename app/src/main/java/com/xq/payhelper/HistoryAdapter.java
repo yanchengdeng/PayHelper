@@ -43,8 +43,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         Bill bill = bills.get(i);
         historyViewHolder.tv_date.setText(bill.getDate());
         historyViewHolder.tv_money.setText(String.valueOf(bill.getMoney()));
-        historyViewHolder.tv_money.setVisibility(View.INVISIBLE);
-        historyViewHolder.tv_content.setText(bill.getContent());
+        historyViewHolder.tv_money.setVisibility(View.GONE);
+        historyViewHolder.tv_content.setText(bill.getTitle() +"\n"+bill.getContent());
         historyViewHolder.tv_sync.setText(bill.getSync() == 0 ? "未同步" : "已同步");
         historyViewHolder.tv_sync.setTextColor(bill.getSync() == 0 ? 0xffff1212 : 0xff007410);
         historyViewHolder.tv_sync.setVisibility(View.INVISIBLE);

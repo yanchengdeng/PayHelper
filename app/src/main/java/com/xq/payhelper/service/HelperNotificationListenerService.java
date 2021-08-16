@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.google.gson.Gson;
 import com.xq.payhelper.HelperApplication;
 import com.xq.payhelper.NotificationUtils;
@@ -20,7 +22,6 @@ import com.xq.payhelper.common.VariableData;
 import com.xq.payhelper.entity.Bill;
 import com.xq.payhelper.entity.Result;
 import com.xq.payhelper.entity.ServiceNoticeInfo;
-import com.xq.payhelper.net.RetrofitUtil;
 
 import java.net.ConnectException;
 import java.text.SimpleDateFormat;
@@ -30,12 +31,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.param.RxHttp;
 
 
 public class HelperNotificationListenerService extends NotificationListenerService {
@@ -75,8 +73,8 @@ public class HelperNotificationListenerService extends NotificationListenerServi
         if (extras == null)
             return;
 
-        Log.d(TAG, "********************************************");
-        Log.d(TAG, "*******************************************： " + pkg);
+        LogUtils.d(TAG, "********************************************");
+        LogUtils.d(TAG, "*******************************************： " + pkg);
         final String title = getNotificationTitle(extras);
         final String content = getNotificationContent(extras);
         final String date = getNotificationTime(notification);
@@ -117,14 +115,13 @@ public class HelperNotificationListenerService extends NotificationListenerServi
         printNotify(date, title, content);
 
         if (Constants.LISTENING_TARGET_PKG_ALi.equals(pkg) || Constants.LISTENING_TARGET_PKG_TENCENT.equals(pkg)) {
-            Log.d(TAG, "********dyc词语title：************************************： " + title);
-            Log.d(TAG, "********dyc词语content：************************************： " + content);
-            if (content.contains("支付")) {
+            LogUtils.d(TAG, "********dyc词语title：************************************： " + title);
+            LogUtils.d(TAG, "********dyc词语content：************************************： " + content);
+            if (content.contains("支付") || content.contains("额") || content.contains("收款")) {
                 final String money = findMoney(content);
                 postMoney(1, notification.when, date, title, content, money);
             }
         }
-        Log.d(TAG, "********************************************");
     }
 
 
@@ -132,8 +129,8 @@ public class HelperNotificationListenerService extends NotificationListenerServi
         try {
             String signSrc = "q_id=" + uid + "&pay_money=" + money + "&time=" + when;
 
-            Log.d(TAG, "********dyc词语上传数据：************************************： " + content);
-            Log.d(TAG, "********dyc词语上传数据：***signSrc*********************************： " + signSrc);
+            LogUtils.d(TAG, "********dyc词语上传数据：************************************： " + content);
+            LogUtils.d(TAG, "********dyc词语上传数据：***signSrc*********************************： " + signSrc);
 //String date, String title, String content, String money
 
             HashMap<String, String> params = new HashMap<String, String>();
@@ -141,40 +138,19 @@ public class HelperNotificationListenerService extends NotificationListenerServi
             params.put("content", new Gson().toJson(new Bill(date, title, content, money)));
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(JSON, new Gson().toJson(params));
-            RetrofitUtil.getInstance().userService().uploadListener(body)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(new Observer<Result>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
 
-                        }
 
-                        @Override
-                        public void onNext(Result userResult) {
-                            postCallback(date, title, content, money, 1);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            Toast.makeText(HelperApplication.getContext(), "出错了", Toast.LENGTH_SHORT).show();
-                            if (e instanceof TimeoutException || e instanceof ConnectException) {
-                                postCallback(date, title, content, money, 0);
-                            }
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
-                    });
+            RxHttp.postBody(SPUtils.getInstance().getString(Constants.BASE_URL_KEY)).setBody(body).asString().subscribe(data -> {
+                postCallback(date, title, content, money, 1);
+            }, throwable -> {
+                if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
+                    postCallback(date, title, content, money, 0);
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
             postCallback(date, title, content, money, 0);
         }
-
-
     }
 
 
@@ -198,7 +174,7 @@ public class HelperNotificationListenerService extends NotificationListenerServi
         Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?)");
         Matcher matcher = pattern.matcher(content);
         if (matcher.find()) {
-             return matcher.group(1);
+            return matcher.group(1);
         }
         return "0.00";
     }
@@ -231,9 +207,9 @@ public class HelperNotificationListenerService extends NotificationListenerServi
     }
 
     private void printNotify(String time, String title, String content) {
-        Log.d(TAG, time);
-        Log.d(TAG, title);
-        Log.d(TAG, content);
+        LogUtils.d(TAG, time);
+        LogUtils.d(TAG, title);
+        LogUtils.d(TAG, content);
     }
 
 

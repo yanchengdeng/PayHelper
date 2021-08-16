@@ -4,15 +4,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.xq.payhelper.common.Constants;
 import com.xq.payhelper.entity.Bill;
 
-import static com.xq.payhelper.common.Constants.DATABASE_VERSION;
-import static com.xq.payhelper.common.Constants.DB_NAME;
 
 public class HelperDbHelper extends SQLiteOpenHelper {
 
     public HelperDbHelper(Context context) {
-        super(context, DB_NAME, null, DATABASE_VERSION);
+        super(context, Constants.DB_NAME, null, Constants.DATABASE_VERSION);
     }
 
     @Override

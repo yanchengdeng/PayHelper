@@ -17,6 +17,5 @@ public class Constants {
 
     public static final int BROADCAST_TYPE_CONNECTED_SERVICE = 1;
     public static final int BROADCAST_TYPE_DISCONNECTED_SERVICE = 2;
-    public static final int BROADCAST_TYPE_NEW_BILL = 3;
 
 }

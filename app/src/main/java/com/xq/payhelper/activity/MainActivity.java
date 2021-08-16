@@ -2,17 +2,13 @@ package com.xq.payhelper.activity;
 
 import android.Manifest;
 import android.app.ActivityManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.nfc.Tag;
-import android.os.Process;
 import android.os.Bundle;
+import android.os.Process;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,33 +28,24 @@ import androidx.lifecycle.Observer;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.king.zxing.CameraScan;
 import com.king.zxing.CaptureActivity;
 import com.xq.payhelper.HelperApplication;
 import com.xq.payhelper.R;
-import com.xq.payhelper.common.VariableData;
-import com.xq.payhelper.entity.Bill;
-import com.xq.payhelper.entity.Result;
-import com.xq.payhelper.entity.ServiceNoticeInfo;
-import com.xq.payhelper.net.RetrofitUtil;
-import com.xq.payhelper.utils.AppUtil;
 import com.xq.payhelper.common.Constants;
+import com.xq.payhelper.common.VariableData;
+import com.xq.payhelper.entity.ServiceNoticeInfo;
 import com.xq.payhelper.service.HelperNotificationListenerService;
+import com.xq.payhelper.utils.AppUtil;
 
-import java.net.ConnectException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+import rxhttp.wrapper.param.RxHttp;
 
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
@@ -78,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private Observer<ServiceNoticeInfo> serviceMsgObserver = new Observer<ServiceNoticeInfo>() {
         @Override
         public void onChanged(ServiceNoticeInfo o) {
+            tvServiceTips.setVisibility(View.VISIBLE);
             tvServiceTips.setText(o.getMsg());
         }
     };
@@ -137,13 +125,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     String result = CameraScan.parseScanResult(data);
                     if (!TextUtils.isEmpty(result)) {
                         etInput.setText(result);
-                       String baseUrl = result;
-                        if (!result.endsWith("/")){
-                            baseUrl = baseUrl+"/";
-                        }
-                        SPUtils.getInstance().put(Constants.BASE_URL_KEY,baseUrl);
-                        RetrofitUtil.getInstance().resetUrl(baseUrl);
-
+                        SPUtils.getInstance().put(Constants.BASE_URL_KEY, result);
                     } else {
                         Toast.makeText(this, "未识别出信息", Toast.LENGTH_LONG).show();
                     }
@@ -154,12 +136,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
 
-
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        String url =  SPUtils.getInstance().getString(Constants.BASE_URL_KEY);
-        LogUtils.d("onNewIntent---"+url);
+        String url = SPUtils.getInstance().getString(Constants.BASE_URL_KEY);
+        LogUtils.d("onNewIntent---" + url);
     }
 
     @Override
@@ -193,21 +174,19 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         //推送服务状态监听
         VariableData.serviceMsg.observe(this, serviceMsgObserver);
 
-        if (!TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))){
+        if (!TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))) {
             etInput.setText(SPUtils.getInstance().getString(Constants.BASE_URL_KEY));
         }
     }
 
 
-
-
     private void startAction() {
-        if (TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))){
+        if (TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))) {
             ToastUtils.showLong(R.string.input_url);
             return;
         }
 
-        KProgressHUD progressHUD =  KProgressHUD.create(MainActivity.this)
+        KProgressHUD progressHUD = KProgressHUD.create(MainActivity.this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setLabel(getString(R.string.loading))
                 .setCancellable(true)
@@ -216,35 +195,18 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 .show();
         try {
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            RequestBody body = RequestBody.create(JSON,"{\"a\":\"open\"}");
-            RetrofitUtil.getInstance().userService().startListener(body)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(new io.reactivex.Observer<Result>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
+            RequestBody body = RequestBody.create(JSON, "{\"a\":\"open\"}");
 
-                        }
-
-                        @Override
-                        public void onNext(Result userResult) {
-                            tvActionApiResult.setText(new Gson().toJson(userResult));
-                            progressHUD.dismiss();
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            tvActionApiResult.setText(e.getLocalizedMessage());
-                            Toast.makeText(HelperApplication.getContext(), "出错了", Toast.LENGTH_SHORT).show();
-                            progressHUD.dismiss();
-
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
+            RxHttp.postBody(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))
+                    .setBody(body)
+                    .asString()
+                    .subscribe(data -> {
+                        tvActionApiResult.setText(data);
+                        progressHUD.dismiss();
+                    }, throwable -> {
+                        progressHUD.dismiss();
+                        tvActionApiResult.setText(throwable.getLocalizedMessage());
+                        Toast.makeText(HelperApplication.getContext(), "出错了", Toast.LENGTH_SHORT).show();
                     });
         } catch (Exception e) {
             e.printStackTrace();
