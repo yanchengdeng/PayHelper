@@ -15,12 +15,12 @@ import retrofit2.http.POST;
 public interface UserService {
 
 
-    /**
+    /**http://www.taida2021.com/testapi/index.php
      * 开启监听
      * @param
      * @return
      */
-    @POST("testapi/index.php")
+    @POST("/testapi/index.php")
     Observable<Result> startListener(@Body RequestBody body);
 
 
@@ -30,7 +30,7 @@ public interface UserService {
      * @param
      * @return
      */
-    @POST("testapi/index.php")
+    @POST("/testapi/index.php")
     Observable<Result> uploadListener(@Body RequestBody body);
 
 }

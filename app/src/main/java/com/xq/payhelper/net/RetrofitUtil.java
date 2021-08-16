@@ -19,7 +19,7 @@ public class RetrofitUtil {
     private static RetrofitUtil util;
     private UserService userService;
 
-    private  Retrofit retrofit;
+    private Retrofit retrofit;
 
     public static RetrofitUtil getInstance() {
         if (util == null) {
@@ -34,7 +34,7 @@ public class RetrofitUtil {
 
     private RetrofitUtil() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(IS_DEBUG ? HttpLoggingInterceptor.Level.BODY:HttpLoggingInterceptor.Level.NONE);
+        interceptor.setLevel(IS_DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
 
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
@@ -49,9 +49,17 @@ public class RetrofitUtil {
     }
 
 
-    public void resetUrl(String urlHost){
-        if (retrofit != null){
-           retrofit.newBuilder().baseUrl(urlHost);
+    public void resetUrl(String urlHost) {
+        if (retrofit != null) {
+            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(IS_DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
+            OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+            httpClientBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+            httpClientBuilder.addInterceptor(interceptor);
+            retrofit.newBuilder().client(httpClientBuilder.build())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .baseUrl(urlHost).build();
         }
     }
 

@@ -109,15 +109,20 @@ public class HelperNotificationListenerService extends NotificationListenerServi
          * android.wearable.EXTENSIONS=Bundle[mParcellParcelable;@6ee55f7,
          *          * android.showWhen=true, android.largeIcon=android.graedData.dataSize=360], android.isGroupConversation=false}]
          */
+
+        /**
+         * 微信模板
+         * 微信收款助手: 微信支付收款1.00元(朋友到店)
+         */
         printNotify(date, title, content);
 
         if (Constants.LISTENING_TARGET_PKG_ALi.equals(pkg) || Constants.LISTENING_TARGET_PKG_TENCENT.equals(pkg)) {
             Log.d(TAG, "********dyc词语title：************************************： " + title);
             Log.d(TAG, "********dyc词语content：************************************： " + content);
-//            if (getNotificationTitle(extras).contains("交易成功")) {
-            final String money = findMoney(content);
-            postMoney(1, notification.when, date, title, content, money);
-//            }
+            if (content.contains("支付")) {
+                final String money = findMoney(content);
+                postMoney(1, notification.when, date, title, content, money);
+            }
         }
         Log.d(TAG, "********************************************");
     }
@@ -135,7 +140,7 @@ public class HelperNotificationListenerService extends NotificationListenerServi
             params.put("a", "submit");
             params.put("content", new Gson().toJson(new Bill(date, title, content, money)));
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            RequestBody body = RequestBody.create(JSON,new Gson().toJson(params));
+            RequestBody body = RequestBody.create(JSON, new Gson().toJson(params));
             RetrofitUtil.getInstance().userService().uploadListener(body)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -190,11 +195,10 @@ public class HelperNotificationListenerService extends NotificationListenerServi
      * @return
      */
     private String findMoney(String content) {
-        String pattern = "(\\d+\\.\\d{2})元$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(content);
-        if (m.find()) {
-            return m.group(1);
+        Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?)");
+        Matcher matcher = pattern.matcher(content);
+        if (matcher.find()) {
+             return matcher.group(1);
         }
         return "0.00";
     }

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.nfc.Tag;
 import android.os.Process;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -28,7 +29,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.SPUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.king.zxing.CameraScan;
@@ -134,8 +137,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     String result = CameraScan.parseScanResult(data);
                     if (!TextUtils.isEmpty(result)) {
                         etInput.setText(result);
-                        SPUtils.getInstance().put(Constants.BASE_URL_KEY,result);
-                        RetrofitUtil.getInstance().resetUrl(result);
+                       String baseUrl = result;
+                        if (!result.endsWith("/")){
+                            baseUrl = baseUrl+"/";
+                        }
+                        SPUtils.getInstance().put(Constants.BASE_URL_KEY,baseUrl);
+                        RetrofitUtil.getInstance().resetUrl(baseUrl);
+
                     } else {
                         Toast.makeText(this, "未识别出信息", Toast.LENGTH_LONG).show();
                     }
@@ -145,23 +153,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
-    private class ServiceBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getIntExtra("type", -1)) {
-                case Constants.BROADCAST_TYPE_CONNECTED_SERVICE:
-                case Constants.BROADCAST_TYPE_DISCONNECTED_SERVICE:
-                    tvServiceTips.setText(intent.getStringExtra("msg"));
-                    break;
-            }
-        }
-    }
 
-    private ServiceBroadcastReceiver serviceBroadcastReceiver = new ServiceBroadcastReceiver();
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        String url =  SPUtils.getInstance().getString(Constants.BASE_URL_KEY);
+        LogUtils.d("onNewIntent---"+url);
     }
 
     @Override
@@ -195,13 +193,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         //推送服务状态监听
         VariableData.serviceMsg.observe(this, serviceMsgObserver);
 
-        if (TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))){
+        if (!TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))){
             etInput.setText(SPUtils.getInstance().getString(Constants.BASE_URL_KEY));
         }
     }
 
 
+
+
     private void startAction() {
+        if (TextUtils.isEmpty(SPUtils.getInstance().getString(Constants.BASE_URL_KEY))){
+            ToastUtils.showLong(R.string.input_url);
+            return;
+        }
+
         KProgressHUD progressHUD =  KProgressHUD.create(MainActivity.this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setLabel(getString(R.string.loading))
@@ -212,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         try {
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(JSON,"{\"a\":\"open\"}");
-
             RetrofitUtil.getInstance().userService().startListener(body)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
