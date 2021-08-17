@@ -7,7 +7,7 @@ apply plugin: 'kotlin-kapt'
 android {
     signingConfigs {
         debug {
-            storeFile file('D:\\projects\\PayHelper\\app\\miaopai.jks')
+            storeFile file('D:\\android_project\\TestProguard\\app\\miaopai.jks')
             storePassword '123456'
             keyPassword '123456'
             keyAlias 'miaopai'
@@ -19,7 +19,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "V1.0"
+        versionName "V1.1"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
