@@ -263,11 +263,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     @Override
     protected void onResume() {
         super.onResume();
-        if (AppUtil.isAvailable(getApplicationContext(), Constants.LISTENING_TARGET_PKG_ALi) || AppUtil.isAvailable(getApplicationContext(), Constants.LISTENING_TARGET_PKG_TENCENT)) {
+//        if (AppUtil.isAvailable(getApplicationContext(), Constants.LISTENING_TARGET_PKG_ALi) || AppUtil.isAvailable(getApplicationContext(), Constants.LISTENING_TARGET_PKG_TENCENT)) {
             ensureCollectorRunning();
-        } else {
-            tvServiceTips.setText("未安装支付宝或微信应用,服务无法开启!");
-        }
+//        } else {
+//            tvServiceTips.setText("未安装支付宝或微信应用,服务无法开启!");
+//        }
     }
 
     private void ensureCollectorRunning() {

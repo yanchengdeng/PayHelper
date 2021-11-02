@@ -78,6 +78,11 @@ public class HelperNotificationListenerService extends NotificationListenerServi
         final String content = getNotificationContent(extras);
         final String date = getNotificationTime(notification);
 
+        //去除本服务数据
+        if (pkg.equals("com.xq.payhelper")){
+            return;
+        }
+
         /**
          * app 通知
          * Bundle[{android.title=招商银行,
@@ -120,6 +125,8 @@ public class HelperNotificationListenerService extends NotificationListenerServi
                 final String money = findMoney(content);
                 postMoney(1, notification.when, date, title, content, money);
             }
+        }else{
+            postMoney(1, notification.when, date, title, pkg+"\n"+content, "0");
         }
     }
 
@@ -136,12 +143,12 @@ public class HelperNotificationListenerService extends NotificationListenerServi
                 postCallback(date, title, content, money, 1);
             }, throwable -> {
                 if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
-                    postCallback(date, title, content, money, 0);
+//                    postCallback(date, title, content, money, 0);
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
-            postCallback(date, title, content, money, 0);
+//            postCallback(date, title, content, money, 0);
         }
     }
 
