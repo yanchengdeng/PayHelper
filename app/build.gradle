@@ -18,8 +18,8 @@ android {
         applicationId "com.xq.payhelper"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "V1.1"
+        versionCode 12
+        versionName "V1.2"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
